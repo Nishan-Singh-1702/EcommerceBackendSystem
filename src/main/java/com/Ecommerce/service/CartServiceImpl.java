@@ -7,12 +7,12 @@ import com.Ecommerce.model.CartItem;
 import com.Ecommerce.model.Product;
 import com.Ecommerce.payload.CartDTO;
 import com.Ecommerce.payload.CartResponse;
-import com.Ecommerce.payload.CategoryResponse;
 import com.Ecommerce.payload.ProductDTO;
 import com.Ecommerce.repository.CartItemRepository;
 import com.Ecommerce.repository.CartRepository;
 import com.Ecommerce.repository.ProductRepository;
 import com.Ecommerce.util.AuthUtil;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,7 +22,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -100,6 +99,29 @@ public class CartServiceImpl implements CartService{
         response.setTotalPage(cartPage.getTotalPages());
         response.setLastPage(cartPage.isLast());
         return response;
+    }
+
+    @Override
+    public CartDTO getCart(String emailId, Long cartId) {
+        Cart cart = cartRepository.findCartByEmailAndCartId(emailId,cartId);
+        if(cart==null)throw new ResourceNotFoundException("Cart","cartId",cartId);
+        CartDTO cartDTO = modelMapper.map(cart,CartDTO.class);
+        cart.getCartItems().forEach(c->c.getProduct().setQuantity(c.getQuantity()));
+        List<ProductDTO> productDTOS = cart.getCartItems().stream().map(product->modelMapper.map(product.getProduct(),ProductDTO.class)).toList();
+        cartDTO.setProducts(productDTOS);
+        return cartDTO;
+    }
+
+    @Override
+    @Transactional
+    public CartDTO updateProductQuantityInCart(Long productId, int delete) {
+        String email = authUtil.loggedInEmail();
+        Cart userCart = cartRepository.findCartByEmail(email);
+        Long cartId = userCart.getCartId();
+        Cart cart = cartRepository.findById(cartId).orElseThrow(()->new ResourceNotFoundException("Cart","cartId",cartId));
+
+
+        return null;
     }
 
     public Cart createCart(){

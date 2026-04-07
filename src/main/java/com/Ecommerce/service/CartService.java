@@ -10,4 +10,8 @@ public interface CartService {
     CartDTO addProductToCart(Long productId, Integer quantity);
 
     CartResponse getAllCarts(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
+
+    CartDTO getCart(String emailId, Long cartId);
+
+    CartDTO updateProductQuantityInCart(Long productId, int delete);
 }
