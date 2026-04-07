@@ -114,14 +114,108 @@ public class CartServiceImpl implements CartService{
 
     @Override
     @Transactional
-    public CartDTO updateProductQuantityInCart(Long productId, int delete) {
+    public CartDTO updateProductQuantityInCart(Long productId, Integer quantity) {
+
         String email = authUtil.loggedInEmail();
-        Cart userCart = cartRepository.findCartByEmail(email);
-        Long cartId = userCart.getCartId();
-        Cart cart = cartRepository.findById(cartId).orElseThrow(()->new ResourceNotFoundException("Cart","cartId",cartId));
+
+        // Get cart
+        Cart cart = cartRepository.findCartByEmail(email);
+        Long cartId = cart.getCartId();
+
+        // Get product
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
+
+        // Get cart item
+        CartItem cartItem = cartItemRepository
+                .findCartItemByProductIdAndCartId(cartId, productId);
+
+        if (cartItem == null) {
+            throw new APIException("Product: " + product.getProductName() + " is not available in the cart");
+        }
+
+        // Calculate new quantity
+        int newQuantity = cartItem.getQuantity() + quantity;
+
+        //  Prevent negative
+        if (newQuantity < 0) {
+            throw new APIException("The resulting quantity cannot be negative");
+        }
+
+        // Prevent exceeding stock
+        if (newQuantity > product.getQuantity()) {
+            throw new APIException(
+                    "Only " + product.getQuantity() + " items available for " + product.getProductName()
+            );
+        }
+
+        // CASE 1: DELETE PRODUCT
+        if (newQuantity == 0) {
+
+            // update total price
+            cart.setTotalPrice(
+                    cart.getTotalPrice() -
+                            (cartItem.getProductPrice() * cartItem.getQuantity())
+            );
+
+            // remove using JPA
+            cart.getCartItems().remove(cartItem);
+
+            //  build DTO
+            CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
+
+            List<ProductDTO> products = cart.getCartItems().stream().map(item -> {
+                ProductDTO dto = modelMapper.map(item.getProduct(), ProductDTO.class);
+                dto.setQuantity(item.getQuantity());
+                return dto;
+            }).toList();
+
+            cartDTO.setProducts(products);
+
+            return cartDTO; // 🔥 IMPORTANT
+        }
+
+        //  CASE 2: UPDATE PRODUCT
+
+        cart.setTotalPrice(
+                cart.getTotalPrice() + (product.getSpecialPrice() * quantity)
+        );
+
+        cartItem.setQuantity(newQuantity);
+        cartItem.setProductPrice(product.getSpecialPrice());
+        cartItem.setDiscount(product.getDiscount());
+
+        cartItemRepository.save(cartItem);
+        cartRepository.save(cart);
+
+        //  build DTO
+        CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
+
+        List<ProductDTO> products = cart.getCartItems().stream().map(item -> {
+            ProductDTO dto = modelMapper.map(item.getProduct(), ProductDTO.class);
+            dto.setQuantity(item.getQuantity());
+            return dto;
+        }).toList();
+
+        cartDTO.setProducts(products);
+
+        return cartDTO;
+    }
+
+    @Override
+    @Transactional
+    public String deleteProductFromCart(Long cartId, Long productId) {
+        String email = authUtil.loggedInEmail();
+        Cart cart = cartRepository.findCartByEmail(email);
+        CartItem cartItemFromDb = cartItemRepository.findCartItemByProductIdAndCartId(cartId,productId);
+        if(cartItemFromDb==null)throw new ResourceNotFoundException("Product","productId",productId);
+
+        cart.setTotalPrice(cart.getTotalPrice()-(cartItemFromDb.getProductPrice()*cartItemFromDb.getQuantity()));
+
+        cartItemRepository.deleteCartItemByProductIdAndCartId(productId,cartId);
 
 
-        return null;
+        return "Product "+cartItemFromDb.getProduct().getProductName()+" is removed from Cart !!";
     }
 
     public Cart createCart(){
