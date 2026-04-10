@@ -99,7 +99,12 @@ public class AddressServiceImpl implements AddressService{
 
     @Override
     public String deleteAddressById(Long addressId) {
+        User user = authUtil.loggedInUser();
         Address addressFromDb = addressRepository.findById(addressId).orElseThrow(()->new ResourceNotFoundException("Address","addressId",addressId));
+
+        if(addressFromDb.getUser() == null || !addressFromDb.getUser().getUserId().equals(user.getUserId())){
+            throw new APIException("You are not allowed to delete this address");
+        }
         addressRepository.delete(addressFromDb);
         return "Address deleted successfully !!";
     }
