@@ -1,16 +1,23 @@
 package com.Ecommerce.service;
 
 import com.Ecommerce.exception.APIException;
+import com.Ecommerce.exception.ResourceNotFoundException;
 import com.Ecommerce.model.Address;
 import com.Ecommerce.model.User;
 import com.Ecommerce.payload.AddressDTO;
+import com.Ecommerce.payload.AddressResponse;
 import com.Ecommerce.repository.AddressRepository;
 import com.Ecommerce.repository.UserRepository;
 import com.Ecommerce.util.AuthUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -35,5 +42,65 @@ public class AddressServiceImpl implements AddressService{
         address.setUser(user);
         Address savedAddress = addressRepository.save(address);
         return modelMapper.map(savedAddress, AddressDTO.class);
+    }
+
+    @Override
+    public AddressResponse getAllAddress(Integer pageNumber, Integer pageSize, String sortOrder, String sortBy) {
+        Sort sortByOrder = sortOrder.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNumber,pageSize,sortByOrder);
+        Page<Address> addressPage = addressRepository.findAll(pageable);
+        if(addressPage.isEmpty()) throw new APIException("No address created !!");
+        List<AddressDTO> addressDTOS = addressPage.stream().map(address->modelMapper.map(address,AddressDTO.class)).toList();
+        AddressResponse response = new AddressResponse();
+        response.setContent(addressDTOS);
+        response.setPageNumber(addressPage.getNumber());
+        response.setPageSize(addressPage.getSize());
+        response.setTotalPage(addressPage.getTotalPages());
+        response.setTotalElement(addressPage.getTotalElements());
+        response.setLastPage(addressPage.isLast());
+        return response;
+    }
+
+    @Override
+    public AddressDTO getAddressById(Long addressId) {
+        Address addressFromDb = addressRepository.findById(addressId).orElseThrow(()->new ResourceNotFoundException("Address","addressId",addressId));
+        return modelMapper.map(addressFromDb,AddressDTO.class);
+    }
+
+    @Override
+    public List<AddressDTO> getAddressByUser() {
+        User user = authUtil.loggedInUser();
+        List<Address> addresses = addressRepository.findAddressByUser(user);
+        if(addresses.isEmpty())throw new APIException("No Address found !!");
+        return addresses.stream().map(address->modelMapper.map(address,AddressDTO.class)).toList();
+    }
+
+    @Override
+    public AddressDTO updateAddressById(Long addressId, AddressDTO addressDTO) {
+        Address addressFromDb = addressRepository.findById(addressId).orElseThrow(()->new ResourceNotFoundException("Address","addressId",addressId));
+        addressFromDb.setState(addressDTO.getState());
+        addressFromDb.setStreet(addressDTO.getStreet());
+        addressFromDb.setCity(addressDTO.getCity());
+        addressFromDb.setCountry(addressDTO.getCountry());
+        addressFromDb.setPincode(addressDTO.getPincode());
+        addressFromDb.setBuildingName(addressDTO.getBuildingName());
+
+        Address savedAddress = addressRepository.save(addressFromDb);
+
+        User user = addressFromDb.getUser();
+        user.getAddresses().removeIf(address -> address.getAddressId().equals(addressId)); // removes the address object from the list if the address id bot match here
+        user.getAddresses().add(savedAddress);
+        userRepository.save(user);
+
+        return modelMapper.map(savedAddress,AddressDTO.class);
+    }
+
+    @Override
+    public String deleteAddressById(Long addressId) {
+        Address addressFromDb = addressRepository.findById(addressId).orElseThrow(()->new ResourceNotFoundException("Address","addressId",addressId));
+        addressRepository.delete(addressFromDb);
+        return "Address deleted successfully !!";
     }
 }
