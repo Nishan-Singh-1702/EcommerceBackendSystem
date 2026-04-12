@@ -78,7 +78,12 @@ public class AddressServiceImpl implements AddressService{
 
     @Override
     public AddressDTO updateAddressById(Long addressId, AddressDTO addressDTO) {
+
+        User user = authUtil.loggedInUser();
         Address addressFromDb = addressRepository.findById(addressId).orElseThrow(()->new ResourceNotFoundException("Address","addressId",addressId));
+        if(addressFromDb.getUser() == null || !addressFromDb.getUser().getUserId().equals(user.getUserId())){
+            throw new APIException("Access Denied: you are not allowed to update this address");
+        }
         addressFromDb.setState(addressDTO.getState());
         addressFromDb.setStreet(addressDTO.getStreet());
         addressFromDb.setCity(addressDTO.getCity());
@@ -87,12 +92,6 @@ public class AddressServiceImpl implements AddressService{
         addressFromDb.setBuildingName(addressDTO.getBuildingName());
 
         Address savedAddress = addressRepository.save(addressFromDb);
-
-        User user = addressFromDb.getUser();
-        user.getAddresses().removeIf(address -> address.getAddressId().equals(addressId)); // removes the address object from the list if the address id bot match here
-        user.getAddresses().add(savedAddress);
-        userRepository.save(user);
-
         return modelMapper.map(savedAddress,AddressDTO.class);
     }
 
