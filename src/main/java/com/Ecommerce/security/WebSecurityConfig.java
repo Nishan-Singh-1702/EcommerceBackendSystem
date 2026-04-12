@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -33,7 +34,7 @@ import java.util.Set;
 
 @Configuration
 @EnableWebSecurity
-//@EnableMethodSecurity
+@EnableMethodSecurity
 public class WebSecurityConfig {
 
     @Autowired
@@ -75,7 +76,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
-//                        .requestMatchers("/api/public/**").permitAll()
+                        .requestMatchers("/api/public/**").permitAll()
 //                        .requestMatchers("/api/admin/**").permitAll()
                         .requestMatchers("/test/**").permitAll()
                         .requestMatchers("/images/**").permitAll()
@@ -122,23 +123,23 @@ public class WebSecurityConfig {
             Set<Role> adminRoles = Set.of(userRole, sellerRole, adminRole);
 
             // Create User if not already present
-            if (!userRepository.existsByUsername("user1")) {
-                User user1 = new User("user1", "user1@gmail.com", passwordEncoder.encode("user1Pass"));
-                user1.setRoles(userRoles);
-                userRepository.save(user1);
-            }
-
-            if (!userRepository.existsByUsername("seller")) {
-                User seller = new User("seller", "seller@gmail.com", passwordEncoder.encode("sellerPass"));
-                seller.setRoles(sellerRoles);
-                userRepository.save(seller);
-            }
-
-            if (!userRepository.existsByUsername("admin")) {
-                User admin = new User("admin", "admin@gmail.com", passwordEncoder.encode("adminPass"));
-                admin.setRoles(adminRoles);
-                userRepository.save(admin);
-            }
+//            if (!userRepository.existsByUsername("user1")) {
+//                User user1 = new User("user1", "user1@gmail.com", passwordEncoder.encode("user1Pass"));
+//                user1.setRoles(userRoles);
+//                userRepository.save(user1);
+//            }
+//
+//            if (!userRepository.existsByUsername("seller")) {
+//                User seller = new User("seller", "seller@gmail.com", passwordEncoder.encode("sellerPass"));
+//                seller.setRoles(sellerRoles);
+//                userRepository.save(seller);
+//            }
+//
+//            if (!userRepository.existsByUsername("admin")) {
+//                User admin = new User("admin", "admin@gmail.com", passwordEncoder.encode("adminPass"));
+//                admin.setRoles(adminRoles);
+//                userRepository.save(admin);
+//            }
 
         };
     }

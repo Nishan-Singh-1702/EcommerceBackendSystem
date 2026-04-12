@@ -48,7 +48,7 @@ public class AuthController {
     RoleRepository roleRepository;
 
     @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest){
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest){
         Authentication authentication;
         try{
             authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),loginRequest.getPassword()));
@@ -57,7 +57,7 @@ public class AuthController {
             Map<String, Object> map = new HashMap<>();
             map.put("message","Bad Credentials");
             map.put("status",false);
-            return new ResponseEntity<>(map,HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(map,HttpStatus.UNAUTHORIZED);
         }
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();

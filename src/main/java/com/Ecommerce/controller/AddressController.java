@@ -28,7 +28,7 @@ public class AddressController {
                                                          @RequestParam(value = "pageSize",required = false,defaultValue = AppConstant.pageSize)Integer pageSize,
                                                          @RequestParam(value = "sortBy",required = false,defaultValue = AppConstant.sortBy)String sortBy,
                                                          @RequestParam(value = "sortOrder",required = false, defaultValue = AppConstant.sortDir)String sortOrder){
-        return ResponseEntity.ok(addressService.getAllAddress(pageNumber,pageSize,sortOrder,sortBy));
+        return ResponseEntity.ok(addressService.getAllAddress(pageNumber,pageSize,sortBy,sortOrder));
     }
 
     @GetMapping("/address/{addressId}")
@@ -42,7 +42,7 @@ public class AddressController {
     }
 
     @PutMapping("/address/{addressId}")
-    public ResponseEntity<AddressDTO> updateAddressById(@PathVariable Long addressId, @RequestBody AddressDTO addressDTO){
+    public ResponseEntity<AddressDTO> updateAddressById(@PathVariable Long addressId, @Valid @RequestBody AddressDTO addressDTO){
         return ResponseEntity.ok(addressService.updateAddressById(addressId,addressDTO));
     }
 

@@ -1,6 +1,7 @@
 package com.Ecommerce.controller;
 
 import com.Ecommerce.config.AppConstant;
+import com.Ecommerce.exception.APIException;
 import com.Ecommerce.model.Cart;
 import com.Ecommerce.payload.CartDTO;
 import com.Ecommerce.payload.CartResponse;
@@ -41,21 +42,21 @@ public class CartController {
 
     @GetMapping("/carts/users/cart")
     public ResponseEntity<CartDTO> getCartById(){
-        String emailId = authUtil.loggedInEmail();
-        Cart cart = cartRepository.findCartByEmail(emailId);
-        Long cartId = cart.getCartId();
-        return ResponseEntity.ok(cartService.getCart(emailId, cartId));
+        return ResponseEntity.ok(cartService.getCart());
     }
 
     @PutMapping("/carts/products/{productId}/quantity/{operation}")
     public ResponseEntity<CartDTO> updateCartProduct(@PathVariable Long productId, @PathVariable String operation){
+        if (!operation.equalsIgnoreCase("delete") && !operation.equalsIgnoreCase("add")) {
+            throw new APIException("Invalid operation. Use 'add' or 'delete'");
+        }
         CartDTO cartDTO = cartService.updateProductQuantityInCart(productId, operation.equalsIgnoreCase("delete") ? -1 : 1);
         return ResponseEntity.ok(cartDTO);
     }
 
-    @DeleteMapping("/carts/{cartId}/product/{productId}")
-    public ResponseEntity<String> deleteProductFromCart(@PathVariable Long cartId, @PathVariable Long productId){
-        return ResponseEntity.ok(cartService.deleteProductFromCart(cartId,productId));
+    @DeleteMapping("/carts/product/{productId}")
+    public ResponseEntity<String> deleteProductFromCart(@PathVariable Long productId){
+        return ResponseEntity.ok(cartService.deleteProductFromCart(productId));
     }
 
 }

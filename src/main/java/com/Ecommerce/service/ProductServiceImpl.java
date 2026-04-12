@@ -8,6 +8,7 @@ import com.Ecommerce.payload.ProductDTO;
 import com.Ecommerce.payload.ProductResponse;
 import com.Ecommerce.repository.CategoryRepository;
 import com.Ecommerce.repository.ProductRepository;
+import com.Ecommerce.util.AuthUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +19,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.awt.*;
 import java.io.IOException;
 import java.util.List;
 
@@ -36,6 +36,9 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     FileService fileService;
 
+    @Autowired
+    AuthUtil authUtil;
+
     @Value("${project.image}")
     private String path;
 
@@ -49,6 +52,7 @@ public class ProductServiceImpl implements ProductService {
         product.setImage("Product.Jpg");
         Double specialPrice = product.getPrice()-(product.getPrice()*(product.getDiscount()/100.0));
         product.setSpecialPrice(specialPrice);
+        product.setUser(authUtil.loggedInUser());
         return modelMapper.map(productRepository.save(product), ProductDTO.class);
     }
 

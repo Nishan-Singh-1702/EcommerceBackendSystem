@@ -4,6 +4,7 @@ import com.Ecommerce.payload.OrderDTO;
 import com.Ecommerce.payload.OrderRequestDTO;
 import com.Ecommerce.service.OrderService;
 import com.Ecommerce.util.AuthUtil;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class OrderController {
     AuthUtil authUtil;
 
     @PostMapping("/order/users/payments/{paymentMethod}")
-    public ResponseEntity<OrderDTO> orderProducts(@PathVariable String paymentMethod, @RequestBody OrderRequestDTO orderRequestDTO){
+    public ResponseEntity<OrderDTO> orderProducts(@PathVariable String paymentMethod, @Valid @RequestBody OrderRequestDTO orderRequestDTO){
         String email = authUtil.loggedInEmail();
         OrderDTO order = orderService.placedOrder(email,
                 orderRequestDTO.getAddressId(),

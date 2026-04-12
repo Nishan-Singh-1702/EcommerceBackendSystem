@@ -8,7 +8,7 @@ import java.util.List;
 public interface AddressService {
     AddressDTO createAddress(AddressDTO addressDTO);
 
-    AddressResponse getAllAddress(Integer pageNumber, Integer pageSize, String sortOrder, String sortBy);
+    AddressResponse getAllAddress(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 
     AddressDTO getAddressById(Long addressId);
 

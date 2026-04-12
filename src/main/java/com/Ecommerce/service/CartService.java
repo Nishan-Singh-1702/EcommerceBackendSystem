@@ -12,10 +12,10 @@ public interface CartService {
 
     CartResponse getAllCarts(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 
-    CartDTO getCart(String emailId, Long cartId);
+    CartDTO getCart();
 
     @Transactional
     CartDTO updateProductQuantityInCart(Long productId, Integer quantity);
 
-    String deleteProductFromCart(Long cartId, Long productId);
+    String deleteProductFromCart(Long productId);
 }

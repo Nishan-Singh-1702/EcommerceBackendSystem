@@ -47,7 +47,7 @@ public class ProductController {
                                                                @RequestParam(name = "sortBy",defaultValue = AppConstant.sortBy,required = false)String sortBy,
                                                                @RequestParam(name = "sortOrder",defaultValue = AppConstant.sortDir,required = false)String sortOrder,
                                                                @PathVariable String keyword){
-        return ResponseEntity.status(HttpStatus.FOUND).body(productService.getProductByKeyword(pageNumber,pageSize,sortBy,sortOrder,keyword));
+        return ResponseEntity.status(HttpStatus.OK).body(productService.getProductByKeyword(pageNumber,pageSize,sortBy,sortOrder,keyword));
     }
 
     @PutMapping("/admin/product/{productId}")

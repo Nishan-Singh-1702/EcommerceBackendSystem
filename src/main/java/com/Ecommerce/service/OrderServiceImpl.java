@@ -77,15 +77,21 @@ public class OrderServiceImpl implements OrderService{
         orderItems=orderItemRepository.saveAll(orderItems);
 
 //        Update product stock
-        cart.getCartItems().forEach(item->{
-            int quantity = item.getQuantity();
-            Product product = item.getProduct();
-            product.setQuantity(product.getQuantity()-quantity);
-            productRepository.save(product);
+//        Step 1: Collect product IDs before modifying the collection
 
-//            Clear the cart
-            cartService.deleteProductFromCart(cart.getCartId(),item.getProduct().getProductId());
+        List<Long> productIds = cart.getCartItems().stream()
+                .map(item -> item.getProduct().getProductId())
+                .toList();
+
+//        Step 2: Update stock
+        cart.getCartItems().forEach(item -> {
+            Product product = item.getProduct();
+            product.setQuantity(product.getQuantity() - item.getQuantity());
+            productRepository.save(product);
         });
+
+//      Step 3: Clear the cart after iteration is complete
+        productIds.forEach(cartService::deleteProductFromCart);
 
 //        Send back the order Summary
         OrderDTO orderDTO = modelMapper.map(savedOrder,OrderDTO.class);

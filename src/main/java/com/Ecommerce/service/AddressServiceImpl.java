@@ -44,7 +44,7 @@ public class AddressServiceImpl implements AddressService{
     }
 
     @Override
-    public AddressResponse getAllAddress(Integer pageNumber, Integer pageSize, String sortOrder, String sortBy) {
+    public AddressResponse getAllAddress(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
         Sort sortByOrder = sortOrder.equalsIgnoreCase("asc")
                 ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();
