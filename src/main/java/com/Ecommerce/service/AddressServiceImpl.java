@@ -69,7 +69,7 @@ public class AddressServiceImpl implements AddressService{
     }
 
     @Override
-    public List<AddressDTO> getAddressByUser() {
+    public List<AddressDTO> getUsersAddress() {
         User user = authUtil.loggedInUser();
         List<Address> addresses = addressRepository.findAddressByUser(user);
         if(addresses.isEmpty())throw new APIException("No Address found !!");

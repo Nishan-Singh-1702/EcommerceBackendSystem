@@ -23,7 +23,7 @@ public class AddressController {
         return ResponseEntity.status(HttpStatus.CREATED).body(addressService.createAddress(addressDTO));
     }
 
-    @GetMapping("/addresses")
+    @GetMapping("/admin/addresses")
     public ResponseEntity<AddressResponse> getAllAddress(@RequestParam(value = "pageNumber",required = false,defaultValue = AppConstant.pageNumber)Integer pageNumber,
                                                          @RequestParam(value = "pageSize",required = false,defaultValue = AppConstant.pageSize)Integer pageSize,
                                                          @RequestParam(value = "sortBy",required = false,defaultValue = AppConstant.sortBy)String sortBy,
@@ -38,7 +38,7 @@ public class AddressController {
 
     @GetMapping("/address/user/address")
     public ResponseEntity<List<AddressDTO>> getUsersAddress(){
-        return ResponseEntity.ok(addressService.getAddressByUser());
+        return ResponseEntity.ok(addressService.getUsersAddress());
     }
 
     @PutMapping("/address/{addressId}")

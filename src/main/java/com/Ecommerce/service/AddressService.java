@@ -12,7 +12,7 @@ public interface AddressService {
 
     AddressDTO getAddressById(Long addressId);
 
-    List<AddressDTO> getAddressByUser();
+    List<AddressDTO> getUsersAddress();
 
     AddressDTO updateAddressById(Long addressId, AddressDTO addressDTO);
 
