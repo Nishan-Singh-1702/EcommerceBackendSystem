@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 public class OrderRequestDTO {
     @NotNull(message = "Address id is required")
     private Long addressId;
-    @NotBlank(message = "Payment method is required")
     private String paymentMethod;
     private String pgName;
     private String pgPaymentId;

@@ -32,7 +32,7 @@ public class CartController {
         return ResponseEntity.status(HttpStatus.CREATED).body(cartService.addProductToCart(productId,quantity));
     }
 
-    @GetMapping("/carts")
+    @GetMapping("/admin/carts")
     public ResponseEntity<CartResponse> getAllCarts(@RequestParam(name = "pageNumber", defaultValue = AppConstant.pageNumber,required = false)Integer pageNumber,
                                                     @RequestParam(name = "pageSize", defaultValue = AppConstant.pageSize, required = false)Integer pageSize,
                                                     @RequestParam(name = "sortBy", defaultValue = AppConstant.sortBy, required = false)String sortBy,

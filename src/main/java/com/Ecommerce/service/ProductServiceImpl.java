@@ -2,10 +2,14 @@ package com.Ecommerce.service;
 
 import com.Ecommerce.exception.APIException;
 import com.Ecommerce.exception.ResourceNotFoundException;
+import com.Ecommerce.model.Cart;
+import com.Ecommerce.model.CartItem;
 import com.Ecommerce.model.Category;
 import com.Ecommerce.model.Product;
 import com.Ecommerce.payload.ProductDTO;
 import com.Ecommerce.payload.ProductResponse;
+import com.Ecommerce.repository.CartItemRepository;
+import com.Ecommerce.repository.CartRepository;
 import com.Ecommerce.repository.CategoryRepository;
 import com.Ecommerce.repository.ProductRepository;
 import com.Ecommerce.util.AuthUtil;
@@ -31,7 +35,13 @@ public class ProductServiceImpl implements ProductService {
     ModelMapper modelMapper;
 
     @Autowired
+    CartRepository cartRepository;
+
+    @Autowired
     CategoryRepository categoryRepository;
+
+    @Autowired
+    CartItemRepository cartItemRepository;
 
     @Autowired
     FileService fileService;
@@ -135,6 +145,13 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDTO deleteProduct(Long productId) {
         Product productFromDb = productRepository.findById(productId).orElseThrow(()->new ResourceNotFoundException("Product","productId",productId));
+        List<CartItem> cartItems = cartItemRepository.findAllByProduct(productFromDb);
+        cartItems.forEach(cartItem -> {
+            Cart cart = cartItem.getCart();
+            cart.setTotalPrice(cart.getTotalPrice() - (cartItem.getProductPrice() * cartItem.getQuantity()));
+            cartRepository.save(cart);
+        });
+        cartItemRepository.deleteAllByProduct(productFromDb);
         productRepository.delete(productFromDb);
         return modelMapper.map(productFromDb,ProductDTO.class);
     }

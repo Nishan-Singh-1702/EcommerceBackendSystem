@@ -133,6 +133,7 @@ public class CartServiceImpl implements CartService{
         if (newQuantity == 0) {
             cart.setTotalPrice(cart.getTotalPrice() -(cartItem.getProductPrice() * cartItem.getQuantity()));
             cart.getCartItems().remove(cartItem);
+            cartItemRepository.deleteCartItemByProductIdAndCartId(productId, cartId);
             CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
             List<ProductDTO> products = cart.getCartItems().stream().map(item -> {ProductDTO dto = modelMapper.map(item.getProduct(), ProductDTO.class);
                 dto.setQuantity(item.getQuantity());
