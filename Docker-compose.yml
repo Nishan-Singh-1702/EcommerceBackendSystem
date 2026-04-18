@@ -1,0 +1,19 @@
+#  services:
+#    app:
+#      build: .
+#      container_name: ecommerce-backend
+#      env_file:
+#        - .env
+#      ports:
+#        - "8080:8080"
+#      restart: on-failure
+
+  services:
+    app:
+      image: your_dockerhub_username/ecommerce-backend:latest  # replaces build: .
+      container_name: ecommerce-backend
+      env_file:
+        - .env
+      ports:
+        - "8080:8080"
+      restart: on-failure
