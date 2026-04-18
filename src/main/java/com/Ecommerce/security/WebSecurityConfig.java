@@ -9,13 +9,13 @@ import com.Ecommerce.security.jwt.AuthEntryPointJwt;
 import com.Ecommerce.security.jwt.AuthTokenFilter;
 import com.Ecommerce.security.services.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -36,6 +36,29 @@ import java.util.Set;
 @EnableWebSecurity
 //@EnableMethodSecurity
 public class WebSecurityConfig {
+
+    @Value("${spring.app.adminUsername}")
+    private String adminUsername;
+    @Value("${spring.app.adminEmail}")
+    private String adminEmail;
+    @Value("${spring.app.adminPassword}")
+    private String adminPassword;
+
+
+    @Value("${spring.app.userUsername}")
+    private String userUsername;
+    @Value("${spring.app.userEmail}")
+    private String userEmail;
+    @Value("${spring.app.userPassword}")
+    private String userPassword;
+
+    @Value("${spring.app.sellerUsername}")
+    private String sellerUsername;
+    @Value("${spring.app.sellerEmail}")
+    private String sellerEmail;
+    @Value("${spring.app.sellerPassword}")
+    private String sellerPassword;
+
 
     @Autowired
     UserDetailsServiceImpl userDetailsService;
@@ -124,24 +147,24 @@ public class WebSecurityConfig {
             Set<Role> sellerRoles = Set.of(sellerRole);
             Set<Role> adminRoles = Set.of(userRole, sellerRole, adminRole);
 
-            // Create User if not already present
-//            if (!userRepository.existsByUsername("user1")) {
-//                User user1 = new User("user1", "user1@gmail.com", passwordEncoder.encode("user1Pass"));
-//                user1.setRoles(userRoles);
-//                userRepository.save(user1);
-//            }
-//
-//            if (!userRepository.existsByUsername("seller")) {
-//                User seller = new User("seller", "seller@gmail.com", passwordEncoder.encode("sellerPass"));
-//                seller.setRoles(sellerRoles);
-//                userRepository.save(seller);
-//            }
-//
-//            if (!userRepository.existsByUsername("admin")) {
-//                User admin = new User("admin", "admin@gmail.com", passwordEncoder.encode("adminPass"));
-//                admin.setRoles(adminRoles);
-//                userRepository.save(admin);
-//            }
+//             Create User if not already present
+            if (!userRepository.existsByUsername(userUsername)) {
+                User user1 = new User(userUsername, userEmail, passwordEncoder.encode(userPassword));
+                user1.setRoles(userRoles);
+                userRepository.save(user1);
+            }
+
+            if (!userRepository.existsByUsername(sellerUsername)) {
+                User seller = new User(sellerUsername, sellerEmail, passwordEncoder.encode(sellerPassword));
+                seller.setRoles(sellerRoles);
+                userRepository.save(seller);
+            }
+
+            if (!userRepository.existsByUsername(adminUsername)) {
+                User admin = new User(adminUsername, adminEmail, passwordEncoder.encode(adminPassword));
+                admin.setRoles(adminRoles);
+                userRepository.save(admin);
+            }
 
         };
     }
