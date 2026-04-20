@@ -6,10 +6,10 @@ and Cart Management.
 
 ## Architecture
 Follows a clean layered structure:
-- **Models** — each with a dedicated DTO class to avoid exposing 
+- **Models** — Each with a dedicated DTO class to avoid exposing 
   database structure directly to the frontend
-- **Repositories** — separate repository for each model
-- **Service Layer** — business logic
+- **Repositories** — Separate repository for each model
+- **Service Layer** — Business logic
 - **Controller Layer** — REST API endpoints
 
 ## Features
